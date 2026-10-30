@@ -46,8 +46,14 @@ jobs:
       - name: Package .ipa
         run: |
           cd vital/plugin/builds/iOS
-          APP=$(find . -name "*.app" -path "*Release-iphoneos*" | head -1)
+          # El proyecto guarda el resultado en build/Release (CONFIGURATION_BUILD_DIR)
+          APP=$(find build -maxdepth 3 -name "*.app" | head -1)
           echo "APP=$APP"
+          if [ -z "$APP" ]; then
+            echo "No se encontro .app. Contenido de build:"
+            find build -maxdepth 3 -not -path "*/Vial.build/*" | head -60
+            exit 1
+          fi
           mkdir -p Payload
           cp -R "$APP" Payload/
           find Payload -name "*.appex"
